@@ -73,6 +73,11 @@ class KerbalProgramSeeder extends Seeder
         $created['Bop']->update(['parent_id' => $created['Jool']->id]);
         $created['Pol']->update(['parent_id' => $created['Jool']->id]);
 
+        ProgramAchievement::whereIn('slug', [
+            Str::slug('Kerbin flyby'),
+            Str::slug('Kerbin return'),
+        ])->delete();
+
         $previous = null;
 
         foreach ($created as $body) {
@@ -82,6 +87,10 @@ class KerbalProgramSeeder extends Seeder
                 }
 
                 if ($body->name === 'Jool' && in_array($type, ['landing', 'return'], true)) {
+                    continue;
+                }
+
+                if ($body->name === 'Kerbin' && in_array($type, ['flyby', 'return'], true)) {
                     continue;
                 }
 

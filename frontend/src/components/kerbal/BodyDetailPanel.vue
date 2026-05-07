@@ -95,8 +95,8 @@ async function toggle(achievement) {
         <div class="stat-label">Δv to land</div>
         <div class="stat-value">{{ fmtMps(body.delta_v_landing_mps) }}</div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Δv to return</div>
+      <div v-if="body.name !== 'Kerbin'" class="stat">
+        <div class="stat-label">Δv return to Kerbin</div>
         <div class="stat-value">{{ fmtMps(body.delta_v_return_mps) }}</div>
       </div>
     </section>

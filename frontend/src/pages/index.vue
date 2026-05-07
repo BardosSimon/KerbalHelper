@@ -61,24 +61,26 @@ function backToSystem() {
       @select="selectBody"
     />
 
-    <header class="absolute top-0 left-0 right-0 px-6 py-4 flex items-center justify-between pointer-events-none z-20">
-      <div class="pointer-events-auto">
-        <h1 class="text-xl sm:text-2xl font-bold tracking-wide">
-          Kerbal <span class="text-indigo-300">Helper</span>
-        </h1>
-        <p class="text-xs text-white/60 mt-0.5">
-          Click a body to inspect Δv, atmosphere and tick off your flybys, orbits, probes &amp; landings.
-        </p>
-      </div>
-      <div class="flex items-center gap-2 pointer-events-auto">
+    <header class="absolute top-0 left-0 right-0 px-6 py-4 flex items-center justify-between pointer-events-none z-40">
+      <div class="flex items-center gap-3 pointer-events-auto">
         <button
           v-if="focusedId != null"
-          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 text-xs transition"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 text-xs transition backdrop-blur"
           @click="backToSystem"
         >
           <ArrowLeft class="w-3.5 h-3.5" />
           Back to system
         </button>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold tracking-wide">
+            Kerbal <span class="text-indigo-300">Helper</span>
+          </h1>
+          <p class="text-xs text-white/60 mt-0.5">
+            Click a body to inspect Δv, atmosphere and tick off your flybys, orbits, probes &amp; landings.
+          </p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 pointer-events-auto">
         <div class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs">
           <span class="text-white/60">Achievements:</span>
           <span class="ml-1 font-semibold">{{ completedAchievements }} / {{ totalAchievements }}</span>

@@ -3,10 +3,11 @@ import { onMounted, ref, computed } from 'vue'
 import { useKerbalStore } from '@stores/KerbalStore.mjs'
 import SolarSystem from '@components/kerbal/SolarSystem.vue'
 import BodyDetailPanel from '@components/kerbal/BodyDetailPanel.vue'
-import { Loader2, RefreshCw } from 'lucide-vue-next'
+import { Loader2, RefreshCw, ArrowLeft } from 'lucide-vue-next'
 
 const store = useKerbalStore()
 const selected = ref(null)
+const focusedId = ref(null)
 
 onMounted(() => store.loadAll())
 
@@ -15,16 +16,45 @@ const completedAchievements = computed(
   () => store.progress.filter((p) => p.is_completed && p.user_id === store.userId).length
 )
 
+const center = computed(() => {
+  if (focusedId.value != null) {
+    return store.bodies.find((b) => b.id === focusedId.value) ?? store.star
+  }
+  return store.star
+})
+
+const orbiters = computed(() => {
+  if (focusedId.value != null) {
+    return store.moonsOf(focusedId.value)
+  }
+  return store.planets
+})
+
 function selectBody(body) {
   selected.value = body
+  if (!body) return
+  if (body.body_type === 'star') {
+    focusedId.value = null
+    return
+  }
+  const hasMoons = store.moonsOf(body.id).length > 0
+  const isPlanetOfStar = store.star && body.parent_id === store.star.id
+  if (isPlanetOfStar && hasMoons) {
+    focusedId.value = body.id
+  }
+}
+
+function backToSystem() {
+  focusedId.value = null
+  selected.value = null
 }
 </script>
 
 <template>
   <div class="relative w-screen h-screen overflow-hidden text-white font-sans">
     <SolarSystem
-      :star="store.star"
-      :planets="store.planets"
+      :center="center"
+      :orbiters="orbiters"
       :selected-id="selected?.id ?? null"
       :completion-count="store.completedCountForBody"
       :achievements-for-body="store.achievementsForBody"
@@ -41,6 +71,14 @@ function selectBody(body) {
         </p>
       </div>
       <div class="flex items-center gap-2 pointer-events-auto">
+        <button
+          v-if="focusedId != null"
+          class="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/15 text-xs transition"
+          @click="backToSystem"
+        >
+          <ArrowLeft class="w-3.5 h-3.5" />
+          Back to system
+        </button>
         <div class="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs">
           <span class="text-white/60">Achievements:</span>
           <span class="ml-1 font-semibold">{{ completedAchievements }} / {{ totalAchievements }}</span>

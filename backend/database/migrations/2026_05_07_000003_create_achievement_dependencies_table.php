@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('required_achievement_id')->constrained('program_achievements')->cascadeOnDelete();
             $table->timestamps();
 
-            $table->unique(['achievement_id', 'required_achievement_id']);
+            $table->unique(['achievement_id', 'required_achievement_id'], 'ach_dep_unique');
         });
     }
 

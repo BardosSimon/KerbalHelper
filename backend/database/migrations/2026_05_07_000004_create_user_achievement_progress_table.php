@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->timestamps();
 
-            $table->unique(['user_id', 'program_achievement_id']);
+            $table->unique(['user_id', 'program_achievement_id'], 'user_achievement_unique');
         });
     }
 

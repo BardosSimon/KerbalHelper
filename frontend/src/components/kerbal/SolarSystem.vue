@@ -114,14 +114,23 @@ const orbitData = computed(() => {
             class="planet"
             :class="{ selected: selectedId === o.planet.id }"
             :style="{
-              width: styleFor(o.planet.name).size + 'px',
-              height: styleFor(o.planet.name).size + 'px',
-              background: `radial-gradient(circle at 30% 30%, #ffffffaa 0%, ${styleFor(o.planet.name).color} 40%, ${styleFor(o.planet.name).glow} 100%)`,
-              boxShadow: `0 0 18px 2px ${styleFor(o.planet.name).glow}aa`
+              width: Math.max(56, styleFor(o.planet.name).size + 16) + 'px',
+              height: Math.max(56, styleFor(o.planet.name).size + 16) + 'px'
             }"
             @click.stop="emit('select', o.planet)"
             :title="o.planet.name"
-          />
+            :aria-label="o.planet.name"
+          >
+            <span
+              class="planet-visual"
+              :style="{
+                width: styleFor(o.planet.name).size + 'px',
+                height: styleFor(o.planet.name).size + 'px',
+                background: `radial-gradient(circle at 30% 30%, #ffffffaa 0%, ${styleFor(o.planet.name).color} 40%, ${styleFor(o.planet.name).glow} 100%)`,
+                boxShadow: `0 0 18px 2px ${styleFor(o.planet.name).glow}aa`
+              }"
+            />
+          </button>
           <span
             class="planet-label"
             :style="{ '--label-offset': (styleFor(o.planet.name).size / 2 + 12) + 'px' }"
@@ -261,15 +270,27 @@ const orbitData = computed(() => {
   position: absolute;
   top: 50%;
   left: 50%;
+  width: 56px;
+  height: 56px;
   transform: translate(-50%, -50%);
   border-radius: 9999px;
   border: none;
   padding: 0;
+  background: transparent;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
-.planet:hover { filter: brightness(1.25); }
-.planet.selected { outline: 2px solid #fff; outline-offset: 4px; }
+.planet-visual {
+  display: block;
+  border-radius: 9999px;
+  pointer-events: none;
+  transition: transform 0.2s ease;
+}
+.planet:hover .planet-visual { filter: brightness(1.25); transform: scale(1.1); }
+.planet.selected .planet-visual { outline: 2px solid #fff; outline-offset: 4px; }
 
 .planet-label {
   position: absolute;

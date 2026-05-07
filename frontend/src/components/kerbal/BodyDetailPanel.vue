@@ -44,7 +44,7 @@ async function toggle(achievement) {
 <template>
   <aside
     v-if="body"
-    class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-[#0c0c1f]/95 backdrop-blur-md border-l border-white/10 text-white z-30 overflow-y-auto shadow-2xl"
+    class="fixed top-0 right-0 h-full w-full sm:w-[420px] bg-[#0c0c1f]/95 backdrop-blur-md border-l border-white/10 text-white z-30 overflow-y-auto shadow-2xl panel-shell"
   >
     <header class="flex items-center justify-between px-5 py-4 border-b border-white/10 sticky top-0 bg-[#0c0c1f]/95 backdrop-blur-md z-10">
       <div>
@@ -117,22 +117,22 @@ async function toggle(achievement) {
 
     <section class="px-5 py-4 border-t border-white/10">
       <h3 class="text-xs uppercase tracking-widest text-white/50 mb-3">Achievements</h3>
-      <ul v-if="achievements.length" class="space-y-2">
+      <ul v-if="achievements.length" class="space-y-2 stagger-list">
         <li
           v-for="a in achievements"
           :key="a.id"
           class="flex items-start gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition"
         >
           <button
-            class="mt-0.5 w-5 h-5 shrink-0 rounded border border-white/30 flex items-center justify-center transition"
+            class="check-btn mt-0.5 w-5 h-5 shrink-0 rounded border border-white/30 flex items-center justify-center transition"
             :class="store.progressFor(a.id)?.is_completed
-              ? 'bg-emerald-500 border-emerald-400'
+              ? 'checked bg-emerald-500 border-emerald-400'
               : 'bg-transparent hover:bg-white/10'"
             @click="toggle(a)"
             :disabled="toggling[a.id]"
             :aria-label="`Toggle ${a.name}`"
           >
-            <svg v-if="store.progressFor(a.id)?.is_completed" class="w-3 h-3 text-white" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3">
+            <svg v-if="store.progressFor(a.id)?.is_completed" class="w-3 h-3 text-white check-svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="3">
               <path d="M3 8.5l3.5 3.5L13 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
@@ -168,11 +168,25 @@ async function toggle(achievement) {
 </template>
 
 <style scoped>
+.panel-shell {
+  animation: panelGlow 6s ease-in-out infinite alternate;
+}
+@keyframes panelGlow {
+  from { box-shadow: -10px 0 40px -20px rgba(120, 140, 255, 0.2); }
+  to   { box-shadow: -10px 0 60px -20px rgba(180, 130, 255, 0.4); }
+}
+
 .stat {
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   border-radius: 0.5rem;
   padding: 0.6rem 0.75rem;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.stat:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 .stat-label {
   font-size: 10px;
@@ -183,5 +197,77 @@ async function toggle(achievement) {
 .stat-value {
   font-weight: 600;
   margin-top: 2px;
+}
+
+/* Stagger fade-in for stat grid */
+.stagger-grid > * {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: staggerIn 0.5s ease forwards;
+}
+.stagger-grid > *:nth-child(1)  { animation-delay: 0.05s; }
+.stagger-grid > *:nth-child(2)  { animation-delay: 0.10s; }
+.stagger-grid > *:nth-child(3)  { animation-delay: 0.15s; }
+.stagger-grid > *:nth-child(4)  { animation-delay: 0.20s; }
+.stagger-grid > *:nth-child(5)  { animation-delay: 0.25s; }
+.stagger-grid > *:nth-child(6)  { animation-delay: 0.30s; }
+.stagger-grid > *:nth-child(7)  { animation-delay: 0.35s; }
+.stagger-grid > *:nth-child(8)  { animation-delay: 0.40s; }
+.stagger-grid > *:nth-child(9)  { animation-delay: 0.45s; }
+.stagger-grid > *:nth-child(10) { animation-delay: 0.50s; }
+
+/* Stagger slide-in for achievement list */
+.stagger-list > li {
+  opacity: 0;
+  transform: translateX(20px);
+  animation: staggerInX 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.stagger-list > li:nth-child(1) { animation-delay: 0.30s; }
+.stagger-list > li:nth-child(2) { animation-delay: 0.38s; }
+.stagger-list > li:nth-child(3) { animation-delay: 0.46s; }
+.stagger-list > li:nth-child(4) { animation-delay: 0.54s; }
+.stagger-list > li:nth-child(5) { animation-delay: 0.62s; }
+.stagger-list > li:nth-child(6) { animation-delay: 0.70s; }
+
+@keyframes staggerIn {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes staggerInX {
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Check button pop + animated stroke */
+.check-btn {
+  position: relative;
+  cursor: pointer;
+}
+.check-btn.checked {
+  animation: checkPop 0.4s cubic-bezier(0.22, 1.6, 0.36, 1);
+}
+.check-btn.checked::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 8px;
+  border: 2px solid rgba(110, 231, 183, 0.6);
+  animation: checkBurst 0.6s ease-out;
+  pointer-events: none;
+}
+@keyframes checkPop {
+  0%   { transform: scale(0.7); }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes checkBurst {
+  from { opacity: 0.8; transform: scale(0.6); }
+  to   { opacity: 0; transform: scale(1.6); }
+}
+.check-svg path {
+  stroke-dasharray: 18;
+  stroke-dashoffset: 18;
+  animation: drawCheck 0.35s ease-out 0.1s forwards;
+}
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
 }
 </style>

@@ -59,10 +59,47 @@ const orbitData = computed(() => {
 
 <template>
   <div class="solar-stage">
-    <div class="starfield" />
-    <div class="starfield twinkle" />
+    <div class="nebula nebula-a" />
+    <div class="nebula nebula-b" />
+    <div class="nebula nebula-c" />
+
+    <div class="starfield drift-slow" />
+    <div class="starfield drift-mid twinkle" />
+    <div class="starfield drift-fast bright" />
+
+    <div class="meteor meteor-1" />
+    <div class="meteor meteor-2" />
+    <div class="meteor meteor-3" />
+    <div class="meteor meteor-4" />
 
     <div class="system">
+      <template v-if="center">
+        <div
+          v-if="isStar"
+          class="corona"
+          :style="{
+            width: styleFor(center.name).size * 1.9 + 'px',
+            height: styleFor(center.name).size * 1.9 + 'px'
+          }"
+        />
+        <div
+          v-if="isStar"
+          class="corona corona-2"
+          :style="{
+            width: styleFor(center.name).size * 2.6 + 'px',
+            height: styleFor(center.name).size * 2.6 + 'px'
+          }"
+        />
+        <div
+          class="halo"
+          :style="{
+            width: styleFor(center.name).size * 1.6 + 'px',
+            height: styleFor(center.name).size * 1.6 + 'px',
+            background: `radial-gradient(circle, ${styleFor(center.name).glow}55 0%, transparent 70%)`
+          }"
+        />
+      </template>
+
       <button
         v-if="center"
         class="center-body"
@@ -80,6 +117,7 @@ const orbitData = computed(() => {
         @click="emit('select', center)"
         :title="center.name"
       >
+        <span class="center-shine" />
         <span class="sr-only">{{ center.name }}</span>
       </button>
 
@@ -122,6 +160,23 @@ const orbitData = computed(() => {
             :aria-label="o.planet.name"
           >
             <span
+              class="planet-halo"
+              :style="{
+                width: styleFor(o.planet.name).size * 2.2 + 'px',
+                height: styleFor(o.planet.name).size * 2.2 + 'px',
+                background: `radial-gradient(circle, ${styleFor(o.planet.name).glow}55 0%, transparent 70%)`
+              }"
+            />
+            <span
+              v-if="selectedId === o.planet.id"
+              class="planet-select-ring"
+              :style="{
+                width: styleFor(o.planet.name).size + 16 + 'px',
+                height: styleFor(o.planet.name).size + 16 + 'px',
+                borderColor: styleFor(o.planet.name).color
+              }"
+            />
+            <span
               class="planet-visual"
               :style="{
                 width: styleFor(o.planet.name).size + 'px',
@@ -129,7 +184,9 @@ const orbitData = computed(() => {
                 background: `radial-gradient(circle at 30% 30%, #ffffffaa 0%, ${styleFor(o.planet.name).color} 40%, ${styleFor(o.planet.name).glow} 100%)`,
                 boxShadow: `0 0 18px 2px ${styleFor(o.planet.name).glow}aa`
               }"
-            />
+            >
+              <span class="planet-shine" />
+            </span>
           </button>
           <span
             class="planet-label"
@@ -159,7 +216,7 @@ const orbitData = computed(() => {
 
 .starfield {
   position: absolute;
-  inset: 0;
+  inset: -10%;
   background-image:
     radial-gradient(2px 2px at 20% 30%, #fff 0%, transparent 100%),
     radial-gradient(1px 1px at 75% 60%, #fff 0%, transparent 100%),
@@ -170,17 +227,95 @@ const orbitData = computed(() => {
     radial-gradient(1px 1px at 60% 15%, #fff 0%, transparent 100%),
     radial-gradient(1px 1px at 80% 85%, #fff 0%, transparent 100%);
   background-size: 600px 600px;
-  opacity: 0.65;
+  opacity: 0.6;
   pointer-events: none;
+  animation-name: drift;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
 }
-.starfield.twinkle {
-  background-size: 400px 400px;
-  opacity: 0.3;
-  animation: twinkle 6s ease-in-out infinite alternate;
+.starfield.drift-slow { animation-duration: 240s; background-size: 800px 800px; opacity: 0.35; }
+.starfield.drift-mid  { animation-duration: 160s; background-size: 500px 500px; opacity: 0.45; }
+.starfield.drift-fast { animation-duration: 90s;  background-size: 320px 320px; opacity: 0.7;  }
+
+.starfield.twinkle { animation: drift 160s linear infinite, twinkle 6s ease-in-out infinite alternate; }
+.starfield.bright {
+  filter: drop-shadow(0 0 2px #fff8);
+}
+
+@keyframes drift {
+  from { background-position: 0 0; }
+  to   { background-position: 1000px 600px; }
 }
 @keyframes twinkle {
-  from { opacity: 0.15; }
-  to   { opacity: 0.6; }
+  from { opacity: 0.2; }
+  to   { opacity: 0.7; }
+}
+
+.nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  opacity: 0.55;
+  mix-blend-mode: screen;
+  animation: nebulaDrift 60s ease-in-out infinite alternate;
+}
+.nebula-a {
+  width: 60vw; height: 60vw;
+  top: -10vw; left: -15vw;
+  background: radial-gradient(circle, #4a2cb8 0%, transparent 60%);
+}
+.nebula-b {
+  width: 55vw; height: 55vw;
+  bottom: -10vw; right: -10vw;
+  background: radial-gradient(circle, #1f6dc4 0%, transparent 60%);
+  animation-duration: 80s;
+  animation-delay: -20s;
+}
+.nebula-c {
+  width: 40vw; height: 40vw;
+  top: 30vh; right: 20vw;
+  background: radial-gradient(circle, #c43c8a 0%, transparent 60%);
+  opacity: 0.35;
+  animation-duration: 100s;
+  animation-delay: -40s;
+}
+@keyframes nebulaDrift {
+  0%   { transform: translate(0, 0) scale(1); }
+  50%  { transform: translate(40px, -30px) scale(1.1); }
+  100% { transform: translate(-30px, 50px) scale(0.95); }
+}
+
+.meteor {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px 2px #fff;
+  pointer-events: none;
+  opacity: 0;
+  animation: meteor 9s linear infinite;
+}
+.meteor::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 120px;
+  height: 1px;
+  background: linear-gradient(90deg, #fff 0%, transparent 100%);
+  transform: translateY(-50%);
+}
+.meteor-1 { top: 10%; left: -10%; animation-delay: 0s; }
+.meteor-2 { top: 35%; left: -10%; animation-delay: 3s; animation-duration: 11s; }
+.meteor-3 { top: 60%; left: -10%; animation-delay: 6s; animation-duration: 8s; }
+.meteor-4 { top: 80%; left: -10%; animation-delay: 1.5s; animation-duration: 12s; }
+@keyframes meteor {
+  0%   { transform: translate(0, 0) rotate(15deg); opacity: 0; }
+  5%   { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { transform: translate(120vw, 30vh) rotate(15deg); opacity: 0; }
 }
 
 .system {
@@ -204,7 +339,70 @@ const orbitData = computed(() => {
 }
 .center-body:hover { transform: translate(-50%, -50%) scale(1.06); }
 .center-body.selected { outline: 2px solid #fff8; outline-offset: 6px; }
-.center-body.star { animation: starPulse 4s ease-in-out infinite alternate; }
+.center-body.star { animation: starPulse 4s ease-in-out infinite alternate; overflow: hidden; }
+
+.center-shine {
+  position: absolute;
+  inset: -20%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.18) 25%, transparent 50%, rgba(255,255,255,0.12) 75%, transparent 100%);
+  pointer-events: none;
+  animation: spinPlain 30s linear infinite;
+}
+.center-body.star .center-shine {
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,240,180,0.4) 20%, transparent 40%, rgba(255,200,90,0.35) 60%, transparent 80%, rgba(255,240,180,0.3) 100%);
+  animation-duration: 18s;
+}
+
+.corona {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  background: conic-gradient(from 0deg,
+    rgba(255, 200, 90, 0.0) 0%,
+    rgba(255, 220, 140, 0.35) 12%,
+    rgba(255, 200, 90, 0.0) 24%,
+    rgba(255, 220, 140, 0.3) 38%,
+    rgba(255, 200, 90, 0.0) 50%,
+    rgba(255, 220, 140, 0.35) 62%,
+    rgba(255, 200, 90, 0.0) 74%,
+    rgba(255, 220, 140, 0.3) 88%,
+    rgba(255, 200, 90, 0.0) 100%);
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  animation: spin 35s linear infinite;
+}
+.corona-2 {
+  filter: blur(18px);
+  opacity: 0.6;
+  animation: spin 60s linear infinite reverse;
+}
+
+.halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  animation: haloBreath 5s ease-in-out infinite alternate;
+}
+@keyframes haloBreath {
+  from { transform: translate(-50%, -50%) scale(0.95); opacity: 0.7; }
+  to   { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes spinPlain {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
 
 .center-label {
   position: absolute;
@@ -233,6 +431,11 @@ const orbitData = computed(() => {
   border-radius: 9999px;
   transform: translate(-50%, -50%);
   pointer-events: none;
+  animation: orbitGlow 6s ease-in-out infinite alternate;
+}
+@keyframes orbitGlow {
+  from { border-color: rgba(255,255,255,0.05); box-shadow: 0 0 0 0 transparent; }
+  to   { border-color: rgba(180,200,255,0.18); box-shadow: 0 0 12px rgba(180,200,255,0.05) inset; }
 }
 
 .orbit-spin {
@@ -284,13 +487,53 @@ const orbitData = computed(() => {
   transition: filter 0.2s ease, transform 0.2s ease;
 }
 .planet-visual {
+  position: relative;
   display: block;
   border-radius: 9999px;
   pointer-events: none;
-  transition: transform 0.2s ease;
+  overflow: hidden;
+  transition: transform 0.3s ease, filter 0.2s ease;
 }
-.planet:hover .planet-visual { filter: brightness(1.25); transform: scale(1.1); }
-.planet.selected .planet-visual { outline: 2px solid #fff; outline-offset: 4px; }
+.planet:hover .planet-visual { filter: brightness(1.3); transform: scale(1.18); }
+
+.planet-shine {
+  position: absolute;
+  inset: -30%;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255,255,255,0.18) 25%, transparent 50%, rgba(0,0,0,0.18) 75%, transparent 100%);
+  animation: spinPlain 12s linear infinite;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+.planet-halo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  animation: haloBreath 4s ease-in-out infinite alternate;
+}
+.planet:hover .planet-halo { opacity: 0.8; }
+.planet.selected .planet-halo { opacity: 1; }
+
+.planet-select-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: selectPulse 1.6s ease-in-out infinite;
+}
+@keyframes selectPulse {
+  0%   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.6); opacity: 0; }
+}
 
 .planet-label {
   position: absolute;
